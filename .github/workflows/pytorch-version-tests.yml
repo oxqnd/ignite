@@ -45,24 +45,25 @@ jobs:
     - name: Install uv
       run: pip install uv
 
-    - name: Create and activate uv virtual environment
+    - name: Create virtual environment
       run: |
         uv venv .venv
 
     - name: Install dependencies
       run: |
-        .venv/bin/uv pip install torch==${{ matrix.pytorch-version }} torchvision --index-url https://download.pytorch.org/whl/cpu
+        # Run pip inside venv using uv (but uv itself is global)
+        uv pip install --python .venv/bin/python torch==${{ matrix.pytorch-version }} torchvision --index-url https://download.pytorch.org/whl/cpu
 
         .venv/bin/python -c "import torch; exit(not float('.'.join(torch.__version__.split('.')[:2])) < 2.3)"
         if [ $? -eq 0 ]; then
-          .venv/bin/uv pip install "numpy<2.0"
+          uv pip install --python .venv/bin/python "numpy<2.0"
         fi
 
-        .venv/bin/uv pip install -r requirements-dev.txt
-        .venv/bin/uv pip install .
+        uv pip install --python .venv/bin/python -r requirements-dev.txt
+        uv pip install --python .venv/bin/python .
 
         if [[ "${{ matrix.pytorch-version }}" == "1.9."* || "${{ matrix.pytorch-version }}" == "1.10."* ]]; then
-          .venv/bin/uv pip install "setuptools<59"
+          uv pip install --python .venv/bin/python "setuptools<59"
         fi
 
     - name: Download MNIST
