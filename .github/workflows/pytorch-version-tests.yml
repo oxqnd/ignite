@@ -51,11 +51,9 @@ jobs:
 
     - name: Install dependencies
       run: |
-        # Run pip inside venv using uv (but uv itself is global)
         uv pip install --python .venv/bin/python torch==${{ matrix.pytorch-version }} torchvision --index-url https://download.pytorch.org/whl/cpu
 
-        .venv/bin/python -c "import torch; exit(not float('.'.join(torch.__version__.split('.')[:2])) < 2.3)"
-        if [ $? -eq 0 ]; then
+        if .venv/bin/python -c "import torch; exit(0) if float('.'.join(torch.__version__.split('.')[:2])) < 2.3 else exit(1)"; then
           uv pip install --python .venv/bin/python "numpy<2.0"
         fi
 
