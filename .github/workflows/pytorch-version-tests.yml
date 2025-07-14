@@ -75,8 +75,13 @@ jobs:
         max_attempts: 5
         timeout_minutes: 15
         shell: bash
-        command: bash tests/run_cpu_tests.sh "not test_time_profilers"
-        new_command_on_retry: USE_LAST_FAILED=1 bash tests/run_cpu_tests.sh "not test_time_profilers"
+        command: |
+          export PATH="$PWD/.venv/bin:$PATH"
+          bash tests/run_cpu_tests.sh "not test_time_profilers"
+        new_command_on_retry: |
+          export PATH="$PWD/.venv/bin:$PATH"
+          USE_LAST_FAILED=1 bash tests/run_cpu_tests.sh "not test_time_profilers"
+
 
 
   create-issue:
